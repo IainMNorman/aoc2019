@@ -1,0 +1,82 @@
+﻿@page "/day/1"
+@inject HttpClient Http
+
+<h1>Day 1 :: The Tyranny of the Rocket Equation</h1>
+
+<h2>My input</h2>
+
+<p>
+    @if (this.input == null)
+    {
+        <text>Loading...</text>
+    }
+    else
+    {
+        @this.input
+    }
+</p>
+
+<h2>Part 1 answer</h2>
+
+<p>@this.part1Answer</p>
+
+<h2>Part 2 answer</h2>
+
+<p>@this.part2Answer</p>
+
+@code {
+    private string input;
+
+    private int part1Answer;
+
+    private int part2Answer;
+
+    private List<int> moduleWeights;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.input = await Http.GetStringAsync("https://aocproxy.azurewebsites.net/2019/day/1/input");
+
+        this.moduleWeights = this.input
+            .Split("\n")
+            .Where(x => x.Length > 0)
+            .Select(x => int.Parse(x))
+            .ToList();
+
+        this.RunPart1();
+        this.RunPart2();
+    }
+
+    internal void RunPart1()
+    {
+        this.part1Answer = this.moduleWeights.Sum(x => GetModuleFuel(x));
+    }
+
+    internal void RunPart2()
+    {
+        this.part2Answer = this.moduleWeights.Sum(x => GetModuleTotalFuel(x));
+    }
+
+    internal int GetModuleTotalFuel(int weight)
+    {
+        var fuel = GetModuleFuel(weight);
+        var total = fuel;
+
+        while (fuel > 0)
+        {
+            fuel = GetModuleFuel(fuel);
+
+            if (fuel > 0)
+            {
+                total += fuel;
+            }
+        }
+
+        return total;
+    }
+
+    internal int GetModuleFuel(int weight)
+    {
+        return (int)(Math.Floor((double)weight / 3.0) - 2.0);
+    }
+}
