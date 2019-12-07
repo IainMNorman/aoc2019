@@ -1,0 +1,83 @@
+﻿@page "/day/2"
+@inject HttpClient Http
+
+<h1>Day 2 :: 1202 Program Alarm</h1>
+
+<h2>Part 1 answer</h2>
+
+<p>@this.part1Answer</p>
+
+<h2>Part 2 answer</h2>
+
+<p>@this.part2Answer</p>
+
+@code {
+    private string input;
+
+    private int part1Answer;
+
+    private string part2Answer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.input = await Http.GetStringAsync("https://aocproxy.azurewebsites.net/2019/day/2/input");
+
+        var disk = this.input
+                .Split(',')
+                .Select(x => int.Parse(x))
+                .ToArray();
+
+        var memory = disk.ToArray();
+
+        memory[1] = 12;
+        memory[2] = 2;
+
+        this.part1Answer = Run(memory, 0);
+
+        for (int n = 0; n < 100; n++)
+            {
+                for (int v = 0; v < 100; v++)
+                {
+                    memory = disk.ToArray();
+                    memory[1] = n;
+                    memory[2] = v;
+                    if (Run(memory, 0) == 19690720)
+                    {
+                        this.part2Answer = $"{n * 100 + v}";
+                    }
+                }
+            }
+    }
+
+    internal int Run(int[] memory, int position)
+    {
+        var opcode = memory[position];
+
+        if (opcode == 99)
+        {
+            return memory[0];
+        }
+
+        var address1 = memory[position + 1];
+        var address2 = memory[position + 2];
+        var pointer = memory[position + 3];
+
+        switch (opcode)
+        {
+            case 1:
+                memory[pointer] = memory[address1] + memory[address2];
+                break;
+            case 2:
+                memory[pointer] = memory[address1] * memory[address2];
+                break;
+            default:
+                break;
+        }
+
+        position += 4;
+
+        var result = Run(memory, position);
+
+        return result != 0 ? result : 0;
+    }
+}
