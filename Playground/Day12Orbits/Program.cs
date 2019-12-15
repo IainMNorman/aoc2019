@@ -12,9 +12,8 @@ namespace Day12Orbits
     {
         static void Main(string[] args)
         {
-            //DoIt("test1.txt", 10);
-            //DoIt("test2.txt", 100);
-            Part2("test2.txt");
+            Part1("test2.txt", 1000000);
+            //Part2("mine.txt");
         }
 
         static void Part1(string filename, int steps)
@@ -124,11 +123,10 @@ namespace Day12Orbits
 
             var states = new HashSet<(float, float, float, float, float, float, float, float)>();
 
-            var step = 0;
-            while (true)
-            {
-                step++;
+            var xStep = 0;
 
+            while (true)
+            {   
                 foreach (var pair in pairs)
                 {
                     CalcVelocity(pair);
@@ -146,10 +144,87 @@ namespace Day12Orbits
                 {
                     states.Add(state);
                 }
+
+                xStep++;
             }
 
-            var xSteps = step;
-            
+            states.Clear();
+
+            var yStep = 0;
+
+            while (true)
+            {    
+                foreach (var pair in pairs)
+                {
+                    CalcVelocity(pair);
+                }
+
+                moons.ForEach(y => y.ApplyVelocity());
+
+                var state = (moons[0].Position.Y, moons[1].Position.Y, moons[2].Position.Y, moons[3].Position.Y, moons[0].Velocity.Y, moons[1].Velocity.Y, moons[2].Velocity.Y, moons[3].Velocity.Y);
+
+                if (states.Contains(state))
+                {
+                    break;
+                }
+                else
+                {
+                    states.Add(state);
+                }
+
+                yStep++;
+            }
+
+            states.Clear();
+
+            var zStep = 0;
+
+            while (true)
+            {    
+                foreach (var pair in pairs)
+                {
+                    CalcVelocity(pair);
+                }
+
+                moons.ForEach(y => y.ApplyVelocity());
+
+                var state = (moons[0].Position.Z, moons[1].Position.Z, moons[2].Position.Z, moons[3].Position.Z, moons[0].Velocity.Z, moons[1].Velocity.Z, moons[2].Velocity.Z, moons[3].Velocity.Z);
+
+                if (states.Contains(state))
+                {
+                    break;
+                }
+                else
+                {
+                    states.Add(state);
+                }
+
+                zStep++;
+            }
+
+            Console.WriteLine($"{xStep}, {yStep}, {zStep}");
+            Console.WriteLine($"LCM: {LCM(LCM(xStep,yStep),zStep)}");
+
+        }
+
+        private static long GCD(long a, long b)
+        {
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+
+            // Pull out remainders.
+            while (true)
+            {
+                long remainder = a % b;
+                if (remainder == 0) return b;
+                a = b;
+                b = remainder;
+            };
+        }
+
+        private static long LCM(long a, long b)
+        {
+            return a * b / GCD(a, b);
         }
 
         private static void CalcVelocity(IList<Moon> pair)
