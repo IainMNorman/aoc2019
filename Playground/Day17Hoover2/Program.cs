@@ -36,6 +36,10 @@ namespace IntCode
             while (comp.Running)
             {
                 comp.RunStep();
+                if (comp.Outputs.Count > 0)
+                {
+                    Console.Write((char)comp.Outputs.Dequeue());
+                }
             }
 
             Console.WriteLine(comp.Outputs.Last());
